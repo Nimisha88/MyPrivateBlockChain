@@ -14,6 +14,7 @@ class BlockchainController {
 
     // Initialize all API routes
     this.getServiceHome();
+    this.alterBlockAtHeight();
     this.getBlockByHeight();
     this.getBlockByHash();
     this.getStarsByOwner();
@@ -26,13 +27,34 @@ class BlockchainController {
     this.app.get('/', (req, res) => res.send('Hi there! My blockchain webservice is up and running!'));
   }
 
+  // Endpoint to test Validation
+  alterBlockAtHeight() {
+    this.app.get('/breakChain/height/:height', async (req, res) => {
+      if(req.params.height) {
+        try {
+          let block = await this.blockchain.alterBlockAtHeight(req.params.height);
+          if (block){
+            return res.status(200).json(block);
+          } else {
+            return res.status(404).send('Block not altered!');
+          }
+        }
+        catch(error) {
+          res.status(500).send(`Error: ${error}`);
+        }
+      }
+      else {
+        return res.status(404).send('Please review the block height and try again!');
+      }
+    });
+  }
+
   // Enpoint to retrieve a Block by Height (GET Endpoint)
   getBlockByHeight() {
     this.app.get('/block/height/:height', async (req, res) => {
       if(req.params.height) {
         try {
           let block = await this.blockchain.getBlockByHeight(req.params.height);
-          console.log(`BlockByHeight: ${block}`);
           if (block){
             return res.status(200).json(block);
           } else {
@@ -120,10 +142,10 @@ class BlockchainController {
   submitStar() {
     this.app.post('/submitStar', async (req, res) => {
       if(req.body.address && req.body.message && req.body.signature && req.body.star) {
-        console.log(`Request: ${JSON.stringify(req.body)}`);
         const {address, message, signature, star} = req.body;
         try {
           let block = await this.blockchain.submitStar(address, message, signature, star);
+          console.log(JSON.stringify(block));
           if(block){
               return res.status(200).json(block);
           }

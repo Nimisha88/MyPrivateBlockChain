@@ -39,12 +39,10 @@ class Block {
     return new Promise((resolve, reject) => {
       try {
         // Destructing Block Object
-        const {hash, height, data, time, previousBlockHash} = self;
-        // Recalculate Hash and resolve with True or False
-        resolve(hash === SHA256(JSON.stringify({ height, data, time, previousBlockHash })).toString());
+        const { hash, height, owner, data, time, previousBlockHash } = self;
+        resolve(hash === SHA256(JSON.stringify({hash: null, height, owner, data, time, previousBlockHash})).toString());
       }
       catch(error) {
-        // Reject Promise
         reject(error);
       }
     });

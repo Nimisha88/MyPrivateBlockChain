@@ -1,6 +1,18 @@
+/**
+ * Import libraries
+ */
+
 const SHA256 = require('crypto-js/sha256');
 const BitcoinMsg = require('bitcoinjs-message');
 const Block = require('./block.js');
+
+/**
+ *          Blockchain
+ *
+ *  This class adds new blocks to the chain post validating the chain
+ *  It also supports retrieval of block by height or hash
+ *  It also retrieves stars registered to an owner
+ */
 
 class Blockchain {
   constructor() {
@@ -29,7 +41,19 @@ class Blockchain {
         // Hash must be added after all other data is added
         newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
         self.chain.push(newBlock);
-        resolve(newBlock);
+
+        self.validateChain()
+          .then(errors => {
+            if(errors.length) {
+              errors.push('Validation of BlockChain failed, block rejected!');
+              self.chain.pop();
+              reject(errors);
+            }
+            else {
+              resolve(newBlock);
+            }
+          })
+          .catch(err => reject(err));
       }
       catch(error) {
         reject(error);
@@ -79,8 +103,10 @@ class Blockchain {
       switch(isVerified) {
         case null:
           reject('Registry request expired!');
+          break;
         case false:
           reject('Signature unverified!');
+          break;
         case true:
           self._addBlock(new Block({owner: address, star}, address))
             .then(block => resolve(block))
@@ -93,12 +119,37 @@ class Blockchain {
     });
   }
 
+  alterBlockAtHeight(height) {
+    let self = this;
+    return new Promise((resolve, reject) => {
+      self.chain[height].previousBlockHash = '11111';
+      resolve(self.chain[height]);
+    })
+  }
+
   validateChain() {
     let self = this;
     return new Promise((resolve, reject) => {
-      // TODO validate each block
-      // TODO Verify chain is not broken
-      // TODO
+      let errors = [];
+
+      // Verify chain is not broken
+      for (let block of self.chain) {
+        if (block.height) {
+          if(block.previousBlockHash !== self.chain[block.height-1].hash) {
+            errors.push(`Chain is broken at height ${block.height}`);
+          }
+        }
+      }
+
+      // Validate all blocks
+      Promise.all(self.chain.map(block => block.validate()))
+        .then(validatedBlocks => {
+          if(validatedBlocks.includes(false)) {
+            errors.push(`One or more blocks are invalid`);
+          }
+          resolve(errors);
+        })
+        .catch(err => reject(err));
     });
   }
 }
