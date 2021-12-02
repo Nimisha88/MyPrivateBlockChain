@@ -1,6 +1,6 @@
 const SHA256 = require('crypto-js/sha256');
 const BitcoinMsg = require('bitcoinjs-message');
-const Block = require('block.js');
+const Block = require('./block.js');
 
 class Blockchain {
   constructor() {
@@ -13,7 +13,7 @@ class Blockchain {
   }
 
   get presentTime() {
-    return new Date().getTime().toString().splice(0,-3);
+    return new Date().getTime().toString().slice(0,-3);
   }
 
   _createGenesisBlock() {
@@ -37,9 +37,34 @@ class Blockchain {
     });
   }
 
-  requestMessageOwnershipVerification(address) {
+  getBlockByHeight(height) {
+    let self = this;
     return new Promise((resolve, reject) => {
-      resolve(`${address}:${this.presentTime}:starRegistry`);
+      resolve(self.chain.height < height ? false : self.chain[height]);
+    });
+  }
+
+  getBlockByHash(hash) {
+    let self = this;
+    return new Promise((resolve, reject) => {
+      resolve(self.chain.filter(block => block.hash === hash));
+    });
+  }
+
+  getBlockByAddress(address) {
+    let self = this;
+    return new Promise((resolve, reject) => {
+      let ownersBlocks = self.chain.filter(block => block.owner === address);
+      Promise.all(ownersBlocks.map(block => block.getBData()))
+        .then((decodedBlocks) => resolve(decodedBlocks))
+        .catch(error => reject(`Blockdata not decoded properly! Error: ${error}`));
+    });
+  }
+
+  requestMessageOwnershipVerification(address) {
+    let self = this;
+    return new Promise((resolve, reject) => {
+      resolve(`${address}:${self.presentTime}:starRegistry`);
     });
   }
 
@@ -57,13 +82,23 @@ class Blockchain {
         case false:
           reject('Signature unverified!');
         case true:
-          self._addBlock(new Block(address, star))
+          self._addBlock(new Block({owner: address, star}, address))
             .then(block => resolve(block))
             .catch(error => reject(error));
+          break;
         default:
           reject('Something went wrong!');
       }
 
+    });
+  }
+
+  validateChain() {
+    let self = this;
+    return new Promise((resolve, reject) => {
+      // TODO validate each block
+      // TODO Verify chain is not broken
+      // TODO
     });
   }
 }

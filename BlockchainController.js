@@ -13,6 +13,7 @@ class BlockchainController {
     this.blockchain = blockChainObj;
 
     // Initialize all API routes
+    this.getServiceHome();
     this.getBlockByHeight();
     this.getBlockByHash();
     this.getStarsByOwner();
@@ -20,38 +21,123 @@ class BlockchainController {
     this.submitStar();
   }
 
+  // Endpoint to webservice default
+  getServiceHome() {
+    this.app.get('/', (req, res) => res.send('Hi there! My blockchain webservice is up and running!'));
+  }
+
   // Enpoint to retrieve a Block by Height (GET Endpoint)
   getBlockByHeight() {
     this.app.get('/block/height/:height', async (req, res) => {
-      // TODO implement getBlockByHeight logic
+      if(req.params.height) {
+        try {
+          let block = await this.blockchain.getBlockByHeight(req.params.height);
+          console.log(`BlockByHeight: ${block}`);
+          if (block){
+            return res.status(200).json(block);
+          } else {
+            return res.status(404).send('Block not found!');
+          }
+        }
+        catch(error) {
+          res.status(500).send(`Error: ${error}`);
+        }
+      }
+      else {
+        return res.status(404).send('Please review the block height and try again!');
+      }
     });
   }
 
   // Endpoint to retrieve a Block by Hash (GET endpoint)
   getBlockByHash() {
     this.app.get('/block/hash/:hash', async (req, res) => {
-      // TODO implement getBlockByHash logic
+      if(req.params.hash) {
+        try {
+          let block = await this.blockchain.getBlockByHash(req.params.hash);
+          if (block.length === 1){
+            return res.status(200).json(block[0]);
+          } else {
+            return res.status(404).send('Block not found!');
+          }
+        }
+        catch(error) {
+          res.status(500).send(`Error: ${error}`);
+        }
+      }
+      else {
+        return res.status(404).send('Please review the block hash and try again!');
+      }
     });
   }
 
   // Endpoint to retrieve the list of Stars registered by an owner (GET endpoint)
   getStarsByOwner() {
     this.app.get('/blocks/:address', async (req, res) => {
-      // TODO implement getStarsByOwner logic
+      if(req.params.address) {
+        try {
+          let blocks = await this.blockchain.getBlockByAddress(req.params.address);
+          if (blocks.length !== 0){
+            return res.status(200).json(blocks);
+          } else {
+            return res.status(404).send('No blocks owned by the owner!');
+          }
+        }
+        catch(error) {
+          res.status(500).send(`Error: ${error}`);
+        }
+      }
+      else {
+        return res.status(404).send(`Please review the owner's address and try again!`);
+      }
     });
   }
 
   // Endpoint to allow user to request Ownership of a Wallet address (POST Endpoint)
   requestOwnership() {
     this.app.post('/requestValidation', async (req, res) => {
-      // TODO implement requestOwnership logic
+      if(req.body.address) {
+        try {
+          const message = await this.blockchain.requestMessageOwnershipVerification(req.body.address);
+          if (message) {
+            res.status(200).json(message);
+          }
+          else {
+            res.status(500).send('Something went wrong, please try again!');
+          }
+        }
+        catch (error) {
+          res.status(500).send(`Error: ${error}`);
+        }
+      }
+      else {
+        return res.status(500).send('Please verify the wallet address and try again!');
+      }
     });
   }
 
   // Endpoint to allow user to Submit a Star post requesting Ownership (POST endpoint)
   submitStar() {
-    this.app.post('/submitStar', (req, res) => {
-      // TODO implement submitStar logic
+    this.app.post('/submitStar', async (req, res) => {
+      if(req.body.address && req.body.message && req.body.signature && req.body.star) {
+        console.log(`Request: ${JSON.stringify(req.body)}`);
+        const {address, message, signature, star} = req.body;
+        try {
+          let block = await this.blockchain.submitStar(address, message, signature, star);
+          if(block){
+              return res.status(200).json(block);
+          }
+          else {
+              return res.status(500).send('Something went wrong, please try again!');
+          }
+        }
+        catch (error) {
+          res.status(500).send(`Error: ${error}`);
+        }
+      }
+      else {
+        return res.status(500).send('Please verify request parameters and try again!');
+      }
     });
   }
 }

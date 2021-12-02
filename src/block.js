@@ -10,12 +10,12 @@ const HEX2ASCII = require('hex2ascii');
  */
 
 class Block {
-  constructor(owner=null, data) {
+  constructor(data, owner=null) {
     this.hash = null;
     this.height = 0;
     this.owner = owner; // Not encoded
     this.data =  Buffer.from(JSON.stringify(data)).toString('hex'); // Encode data to Hex
-    this.time = new Date().getTime().toString().splice(0, -3);
+    this.time = new Date().getTime().toString().slice(0, -3);
     this.previousBlockHash = null;
   }
 
