@@ -20,6 +20,7 @@ class BlockchainController {
     this.getStarsByOwner();
     this.requestOwnership();
     this.submitStar();
+    this.getChainValidation();
   }
 
   // Endpoint to webservice default
@@ -161,6 +162,25 @@ class BlockchainController {
         return res.status(500).send('Please verify request parameters and try again!');
       }
     });
+  }
+
+  // Endpoint to validate chain
+  getChainValidation() {
+    this.app.get(('/validateChain', async (req, res) => {
+      try {
+        const errors = await this.blockchain.validateChain();
+        if (errors.length) {
+          errors.push('Validation of BlockChain failed!');
+          return res.status(200).json(errors);
+        }
+        else {
+          return res.status(200).send(`Chain is valid`);
+        }
+      }
+      catch(error) {
+        res.status(500).send(`Error: ${error}`);
+      }
+    }));
   }
 }
 

@@ -16,6 +16,7 @@ It is a blockchain for an Astronomy fan which allows him and his friends to regi
 * '/blocks/:address' - Fetches decoded Star(s) data by owner's wallet address
 * '/requestValidation' - Requests message to be signed
 * '/submitStar' - Requests signature to be verified and Star data to be added to the chain
+* '/validateChain' - Fetches results for chain validation, if invalid, displays all the errors
 
 ## Installation instructions
 * Install [NodeJS](https://nodejs.org/) and npm
@@ -50,6 +51,7 @@ Use Postman desktop agent to do following API calls:
 }
 ```
 * **InvalidateBlockByHeight** - http://localhost:8000/breakChain/height/<add-height>
+* **ValidateChain** - http://localhost:8000/validateChain
 
 ## Folder Structure
 
@@ -58,7 +60,7 @@ Use Postman desktop agent to do following API calls:
   * .gitignore - Files that were ignored in commit
   * package.json - Contains list of installable dependencies needed to run the application locally
   * app.js - Webservice scripting to handle API requests asynchronously
-  * BlockchainController - Ensure only one instance of chain and routes requests according to enp points
+  * BlockchainController - Ensure only one instance of chain and routes requests according to end points
   * src/
     * block.js - Class to define block
     * blockchain.js - Class to define blockchain

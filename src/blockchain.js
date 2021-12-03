@@ -63,14 +63,13 @@ class Blockchain {
         newBlock.previousBlockHash = (self.height > 0)? self.chain[self.height - 1].hash : null;
         // Hash must be added after all other data is added
         newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-        self.chain.push(newBlock);
 
         // Validate Chain
         self.validateChain()
           .then(errors => {
             if(errors.length) {
               errors.push('Validation of BlockChain failed, block rejected!');
-              self.chain.pop();
+              self.chain.push(newBlock);
               reject(errors);
             }
             else {
