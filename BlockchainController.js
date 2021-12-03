@@ -166,7 +166,7 @@ class BlockchainController {
 
   // Endpoint to validate chain
   getChainValidation() {
-    this.app.get(('/validateChain', async (req, res) => {
+    this.app.get('/validateChain', async (req, res) => {
       try {
         const errors = await this.blockchain.validateChain();
         if (errors.length) {
@@ -180,7 +180,7 @@ class BlockchainController {
       catch(error) {
         res.status(500).send(`Error: ${error}`);
       }
-    }));
+    });
   }
 }
 

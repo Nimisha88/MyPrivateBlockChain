@@ -70,6 +70,8 @@ Use Postman desktop agent to do following API calls:
     * MessageSignature.png
     * RequestMessageToSign.png
     * SubmitStar.png
+    * ValidateChain - Negative.png - after invalidating the chain using EP '/breakChain/height'
+    * ValidateChain - Positive.png
 
 ## Copyright
 

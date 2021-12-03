@@ -65,18 +65,24 @@ class Blockchain {
         newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
 
         // Validate Chain
-        self.validateChain()
-          .then(errors => {
-            if(errors.length) {
-              errors.push('Validation of BlockChain failed, block rejected!');
-              self.chain.push(newBlock);
-              reject(errors);
-            }
-            else {
-              resolve(newBlock);
-            }
-          })
-          .catch(err => reject(err));
+        if(self.height) {
+          self.validateChain()
+            .then(errors => {
+              if(errors.length) {
+                errors.push('Validation of BlockChain failed, block rejected!');
+                reject(errors);
+              }
+              else {
+                self.chain.push(newBlock);
+                resolve(newBlock);
+              }
+            })
+            .catch(err => reject(err));
+        }
+        else {
+          self.chain.push(newBlock);
+          resolve(newBlock);
+        }
       }
       catch(error) {
         reject(error);
@@ -160,7 +166,7 @@ class Blockchain {
     return new Promise((resolve, reject) => {
       self.chain[height].previousBlockHash = '11111';
       resolve(self.chain[height]);
-    })
+    });
   }
 
   /**
