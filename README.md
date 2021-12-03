@@ -62,7 +62,12 @@ Use Postman desktop agent to do following API calls:
   * src/
     * block.js - Class to define block
     * blockchain.js - Class to define blockchain
-
+  * test/ - Screen shot for a test Run
+    * GenesisBlock.png
+    * GetStarsByOwner.png
+    * MessageSignature.png
+    * RequestMessageToSign.png
+    * SubmitStar.png
 
 ## Copyright
 
