@@ -1,12 +1,24 @@
 /**
+ * Block
+ * -----------------------------------------------------------------------------
+ * This class defines a block thats added in the Block chain.
+ * It takes Star to be registered and its owner's bitcoin address as input.
+ * It encodes the Star data before adding.
+ * It also adds the current time in seconds.
+ **/
+
+/**
  * Import libraries
+ * -----------------------------------------------------------------------------
+ * crypto-js - to access SHA256 Cryptographic Hash Algorithm
+ * hex2ascii - to decode encoded Block data
  */
 
 const SHA256 = require('crypto-js/sha256');
 const HEX2ASCII = require('hex2ascii');
 
 /**
- * Class with a constructor for block
+ * Block class definition
  */
 
 class Block {
@@ -19,7 +31,7 @@ class Block {
     this.previousBlockHash = null;
   }
 
-  // Get decoded Block Data
+  // Fetch the decoded Block Data
   getBData() {
     let self = this;
     return new Promise((resolve, reject) => {
@@ -34,6 +46,7 @@ class Block {
     });
   }
 
+  // Recalculate hash to verify if the block is valid
   validate() {
     let self = this;
     return new Promise((resolve, reject) => {
